@@ -1,0 +1,37 @@
+openapi: 3.0.1
+info:
+  title: Free Weather Forecast API
+  version: "1.0.0"
+  description: >
+    A simple GET endpoint that returns weather forecasts for a specific grid location.
+
+servers:
+  - url: https://api.weather.gov
+
+paths:
+  /gridpoints/TOP/31,80/forecast:
+    get:
+      summary: Get weather forecast
+      description: Retrieves the 7-day weather forecast for the location (TOP/31,80).
+      responses:
+        '200':
+          description: Weather forecast retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  properties:
+                    type: object
+                    properties:
+                      periods:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                            temperature:
+                              type: number
+                            shortForecast:
+                              type: string
