@@ -1,0 +1,88 @@
+openapi: 3.0.1
+info:
+  title: MITRE ATT&CK TAXII API Wrapper
+  version: "1.0.0"
+  description: >
+    A simple wrapper for retrieving Enterprise ATT&CK STIX objects
+    from MITRE's public TAXII 2.1 server. 
+    This API exposes a single GET endpoint that returns all ATT&CK
+    techniques, sub-techniques, tactics, and relationships used for
+    MITRE mapping validation.
+
+servers:
+  - url: https://attack-taxii.mitre.org
+
+paths:
+  /api/cti/collections/{collectionId}/objects:
+    get:
+      summary: Get Enterprise ATT&CK STIX objects
+      description: >
+        Retrieves the full STIX 2.1 object bundle for a given MITRE ATT&CK
+        collection (typically the Enterprise ATT&CK collection). 
+        Includes techniques, sub-techniques, revocation relationships,
+        deprecation metadata, tactics, and all supporting objects.
+      parameters:
+        - name: collectionId
+          in: path
+          required: true
+          description: >
+            The MITRE ATT&CK collection ID for Enterprise ATT&CK.
+            Your agent typically identifies this ID automatically by querying MITRE TAXII,
+            but you may pass it directly for this skill.
+          schema:
+            type: string
+            example: enterprise-attack
+      responses:
+        '200':
+          description: >
+            Successfully retrieved the full MITRE ATT&CK STIX bundle.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  objects:
+                    type: array
+                    description: >
+                      Array of STIX 2.1 objects including:
+                      - attack-pattern (techniques)
+                      - x-mitre-tactic (tactics)
+                      - relationship (revoked-by, subtechnique-of)
+                      - marking-definition
+                      - identity
+                      - etc.
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          description: STIX object type (attack-pattern, relationship, etc.)
+                        id:
+                          type: string
+                          description: STIX object ID
+                        name:
+                          type: string
+                        description:
+                          type: string
+                        external_references:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              source_name:
+                                type: string
+                              external_id:
+                                type: string
+                        revoked:
+                          type: boolean
+                        x_mitre_deprecated:
+                          type: boolean
+                        kill_chain_phases:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              kill_chain_name:
+                                type: string
+                              phase_name:
+                                type: string
