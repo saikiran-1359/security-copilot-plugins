@@ -4,7 +4,7 @@ info:
   version: "1.0.0"
   description: >
     A simple wrapper for retrieving Enterprise ATT&CK STIX objects
-    from MITRE's public TAXII 2.1 server. 
+    from MITRE's public TAXII 2.1 server.
     This API exposes a single GET endpoint that returns all ATT&CK
     techniques, sub-techniques, tactics, and relationships used for
     MITRE mapping validation.
@@ -13,21 +13,22 @@ servers:
   - url: https://attack-taxii.mitre.org
 
 paths:
-  /api/cti/collections/{collectionId}/objects:
+  /cti/collections/{collectionId}/objects:
     get:
       summary: Get Enterprise ATT&CK STIX objects
       description: >
         Retrieves the full STIX 2.1 object bundle for a given MITRE ATT&CK
-        collection (typically the Enterprise ATT&CK collection). 
+        collection (typically the Enterprise ATT&CK collection).
         Includes techniques, sub-techniques, revocation relationships,
         deprecation metadata, tactics, and all supporting objects.
       parameters:
-      - name: collectionId
-        in: path
-        required: true
-        schema:
-          type: string
-          example: "95ecc380-afe9-11e4-9b6c-751b66dd541e"
+        - name: collectionId
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "95ecc380-afe9-11e4-9b6c-751b66dd541e"
+          description: MITRE ATT&CK Enterprise collection UUID.
 
       responses:
         '200':
