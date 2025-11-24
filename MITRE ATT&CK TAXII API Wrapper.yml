@@ -22,16 +22,13 @@ paths:
         Includes techniques, sub-techniques, revocation relationships,
         deprecation metadata, tactics, and all supporting objects.
       parameters:
-        - name: collectionId
-          in: path
-          required: true
-          description: >
-            The MITRE ATT&CK collection ID for Enterprise ATT&CK.
-            Your agent typically identifies this ID automatically by querying MITRE TAXII,
-            but you may pass it directly for this skill.
-          schema:
-            type: string
-            example: enterprise-attack
+      - name: collectionId
+        in: path
+        required: true
+        schema:
+          type: string
+          example: "95ecc380-afe9-11e4-9b6c-751b66dd541e"
+
       responses:
         '200':
           description: >
