@@ -1,31 +1,99 @@
 openapi: 3.0.1
 info:
-  title: MITRE ATT&CK TAXII API Wrapper
+  title: MITRE ATT&CK STIX Data API
   version: "1.0.0"
   description: >
-    Retrieves Enterprise ATT&CK STIX objects from MITRE’s TAXII 2.1 server.
+    A simple API wrapper that exposes the MITRE Enterprise ATT&CK framework
+    as downloadable STIX 2.1 JSON bundles.  Use this service to retrieve
+    the complete ATT&CK dataset in a single call, or to request a specific
+    version of the ATT&CK data set by filename.  This specification
+    defines two endpoints: one that returns the latest Enterprise ATT&CK
+    bundle from the master branch of the MITRE attack-stix-data repository,
+    and another that returns an arbitrary Enterprise ATT&CK bundle by name.
 
 servers:
-  - url: https://cti-taxii.mitre.org/stix
+  - url: https://raw.githubusercontent.com/mitre-attack/attack-stix-data/refs/heads/master/enterprise-attack/enterprise-attack.json
+    description: Public GitHub raw content server hosting STIX bundles
 
 paths:
-  /collections/{collectionId}/objects/:
+  /enterprise-attack/enterprise-attack.json:
     get:
-      summary: Get Enterprise ATT&CK STIX objects
+      summary: Get latest Enterprise ATT&CK STIX bundle
       description: >
-        Retrieves the full STIX object bundle for the specified MITRE ATT&CK collection.
-      parameters:
-        - name: collectionId
-          in: path
-          required: true
-          description: MITRE Enterprise ATT&CK collection UUID.
-          schema:
-            type: string
-            example: "95ecc380-afe9-11e4-9b6c-751b66dd541e"
+        Retrieves the full STIX 2.1 bundle containing all techniques,
+        sub-techniques, tactics, relationships, data sources, and metadata
+        for the Enterprise ATT&CK domain.  This endpoint always returns
+        the most recent version of the Enterprise ATT&CK dataset on the
+        master branch of the MITRE attack-stix-data repository.
       responses:
         '200':
-          description: Successfully retrieved MITRE ATT&CK STIX objects.
+          description: Latest Enterprise ATT&CK STIX bundle
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/STIXBundle'
+        '404':
+          description: File not found or unavailable
+        '503':
+          description: Upstream service unavailable
+
+  /enterprise-attack/{fileName}:
+    get:
+      summary: Get a specific Enterprise ATT&CK bundle by filename
+      description: >
+        Retrieves the specified STIX bundle file from the MITRE
+        attack-stix-data repository.  The file name must begin with
+        "enterprise-attack" and end with ".json".  Use this endpoint
+        to request a specific version such as `enterprise-attack-18.1.json`.
+      parameters:
+        - name: fileName
+          in: path
+          required: true
+          description: Name of the ATT&CK STIX JSON file to download
+          schema:
+            type: string
+            pattern: '^enterprise-attack.*\.json$'
+      responses:
+        '200':
+          description: Requested ATT&CK STIX bundle
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/STIXBundle'
+        '404':
+          description: The requested file does not exist
+        '503':
+          description: Upstream service unavailable
+
+components:
+  schemas:
+    STIXBundle:
+      type: object
+      description: >
+        A STIX 2.1 bundle containing MITRE ATT&CK objects.  Each bundle
+        includes attack-patterns (techniques and sub-techniques), tactics,
+        relationships (revoked-by, subtechnique-of, etc.), marking
+        definitions, identities, software, and mitigations.  The bundle
+        structure is flexible and may include additional properties beyond
+        those described here.  Clients should treat unknown fields as
+        opaque data.
+      additionalProperties: true
+      properties:
+        type:
+          type: string
+          example: bundle
+          description: The STIX object type, always `bundle` for STIX bundles
+        id:
+          type: string
+          example: bundle--12345678-1234-1234-1234-123456789012
+          description: Unique identifier for the STIX bundle
+        objects:
+          type: array
+          description: >
+            An array of STIX objects contained in this bundle.  Each
+            entry may be an attack-pattern, x-mitre-tactic,
+            relationship, marking-definition, identity, intrusion-set,
+            software, course-of-action, or other ATT&CK-related object.
+          items:
+            type: object
+            additionalProperties: true
